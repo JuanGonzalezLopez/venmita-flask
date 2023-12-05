@@ -1,53 +1,224 @@
 # Venmito Data Engineering Project
-
 ## Introduction
 
-Hello and welcome to this data engineering project for Venmito. We're excited to see how you tackle this challenge and provide us with a solution that can bring together disparate data sources into an insightful and valuable resource.
+This project for Venmito involves developing a solution to manage and analyze data from various sources. The goal is to organize disparate data files into a unified format, providing insights about clients, transactions, transfers, and promotions.
+For now this does the following:
+- Create a Database and all dataset relations with all of the tables it creates.
+- Effectively this connects the data together, and a use case for this is:
+  * Missing values in promotions get recovered using the people dataset
+  * both people are harmonized together 
+  * This can be used to apply data analysis since you can determine:
+    * Who has a promotion with more certainty just by the email or phone number
+    * Know who is in other datasets that aren't in the People dataset.
+    * Can apply descriptive statistics to these datasets.
+### Features:
+* Creates a Dataset in postgresql.
+* Uses docker to basically eliminate all dependency issues and makes it cross platform.
+* Plug n Play running (just run docker-compose build and run)
+* Entity Relationships improves the data by allowing a better way for filling in holes that are in other tables.
+* Can export to .csv, .xlsx, and outputs the first 5 rows into the CLI
+* RESTful API with endpoints. Can access this data by connecting to the Database.
+* NOTE: There is no GUI for this application, it is not meant to be pretty, it is meant to be useful for production and deployment. 
+* TODO: Use a GUI framework to easily interact with the dataset, such as Streamlit.
 
-Venmito is a company with several data files in various formats. Our goal is to organize all of this information to gain insights about our clients and transactions. We believe that there is an immense value hidden in these data files, and we are looking for a solution that can help us extract and utilize this value.
+## Technologies Used 
+- **Python** : Main programming language for the project. 
+- **Flask** : Used to create a web API for serving processed data. 
+- **SQLAlchemy** : ORM (Object Relational Mapper) for handling database interactions. 
+- **PostgreSQL** : Database system for storing and retrieving data. 
+- **Docker** : Containerization platform to ensure consistent setup across environments. 
+- **Pytest** : Testing framework for Python. 
+- **Pandas** : Data manipulation and analysis library. 
+- **Python-Dotenv** : Library to load environment variables from a `.env` file.
+- **Datagrips or PGAdmin4** : Database management tools 
 
-We have five files:
+## Project Process Pipeline Diagrams
+![Venmito Xtillion Diagram](venmito-xtillion-diagram.png)
+- This is the Database ER Diagram, this was generated using Datagrips (can be done with PGAdmin4)
 
-- `people.json`
-- `people.yml`
-- `transfers.csv`
-- `transactions.xml`
-- `promotions.csv`
+![Process Pipeline Diagram](process-pipeline-diagram.png)
+- This is a High-Level overview of the project pipeline. 
+1. Loads Data
+2. Harmonizes and Integrates the Data 
+3. Creates Database (SQLAlchemy)
+4. Inserts Data 
+5. Creates Endpoints
 
-Each of these files contains different pieces of information about our clients, their transactions, transfers and promotions.
+## Project Structure
 
-Your task is to develop a solution that can read these files, match and conform the data, and provide a way to consume this data.
 
-## Requirements
+```bash
+venmito_project/
+├── config/                   # Configuration files and scripts
+├── src/                      # Source code for the Flask application
+│ ├── database/
+│ │ ├── **init** .py
+│ │ ├── create_database.py
+│ │ ├── insert_data.py
+│ │ └── models.py
+│ │
+│ ├── load_data/
+│ │ ├── **init** .py
+│ │ ├── load_csv.py
+│ │ ├── load_json.py
+│ │ ├── load_xml.py
+│ │ └── load_yaml.py
+│ │
+│ └── utils/
+│ ├── **init** .py
+│ └── app.py
+├── utils/                    # Utility scripts including data processing
+├── output/                   # Meant to hold output files like tables and datasets
+├── database/                 # Database models and data insertion scripts
+├── tests/                    # Test scripts
+├── data/                     # Sample data files (JSON, YAML, CSV, XML)
+├── .env                      # Environment variables
+├── .gitignore                # Specifies untracked files to ignore
+├── Dockerfile                # Docker configuration file
+├── docker-compose.yml        # Docker compose configuration
+├── requirements.txt          # Python dependencies
+└── README.md                 # Project documentation
+```
 
-1. **Data Ingestion**: Your solution should be able to read and load data from all the provided files. Take into account that these files are in different formats (JSON, YAML, CSV, XML).
 
-2. **Data Matching and Conforming**: Once the data is loaded, your solution should be able to match and conform the data across these files. This means identifying common entities, resolving inconsistencies, and organizing the data in a unified format.
+## Setup and Installation 
+### READ: Before you start:
+* **READ: IT IS BEST IF YOU USE DOCKER-COMPOSE UP INSTEAD OF THIS**
+* **The .env is necessary for Database credentials, it wont be included in the repo for Security reasons**
+1. **Clone the Repository:** 
 
-3. **Data Output**: The final component of your solution should provide a way for us to consume the newly organized data. This could be through a command line interface (CLI), a database with structured schemas, a GUI showing interactive visualizations, a RESTful API, or any other method that you think would be appropriate for a company like Venmito.
+```bash
+git clone https://github.com/xtillion/venmito-JuanGonzalezLopez.git
+cd venmito-JuanGonzalezLopez
+``` 
+2. **Environment Setup:** 
+- Install Python 3.10 and Docker. 
+- Create a virtual environment and activate it:
 
-4. **Code**: Your solution should be well-structured and easy to understand. Please include comments where necessary. The code will be part of the final deliverable.
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+``` 
+- Install the required Python packages:
 
-## Deliverables
+```bash
+pip install -r requirements.txt
+``` 
+3. **Environment Variables:**  
+- Copy the `.env.example` file to a new file named `.env`. 
+- Update the `.env` file with the appropriate values.
+- for the purpose of this project the credentials inside the .env are:
+```
+# .env file
+POSTGRES_DB=venmito
+POSTGRES_USER=xtillion
+POSTGRES_PASSWORD=password
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+```
 
-- Source code.
-- A README file that describes your solution, your design decisions, and clear instructions on how to run your code.
-- A method to consume the data.
+### **Docker Setup:** 
+- This project has been developed with Docker-compose in mind from the start.
+- It uses PostgreSQL through Docker, and **you must create a .env file** in order to run this.
+- Ensure Docker is running on your machine. 
+- Build the Docker containers:
 
-## Instructions for Submission
+```bash
+docker-compose build
+``` 
+- Start the Docker containers:
 
-1. Complete your project as described above within your fork.
-2. Write a detailed README file that explains your approach, the technologies you used, and provides clear instructions on how to run your code.
-3. Submit your project by creating a pull request to this repository.
+```bash
+docker-compose up
+```
+- Note: add -d at the end if you want to run detached mode.
+- You can access the terminal through Docker Desktop or through CLI.
+- Warning: if it stays waiting for the app to run just re-run docker, only happens the first time running sometimes.
 
-We look forward to seeing your solution!
+## Running the Application 
+### Note: This is if you are not running through Docker. 
+### It is highly recommended to run this in docker to minimize issue.
+1. **Database Initialization:**  
+- Before the first run, initialize the database:
 
-Thank you,
+```bash
+python database/create_database.py
+``` 
+2. **Data Ingestion and Processing:**  
+- Run the data ingestion and processing script:
 
-Venmito
+```bash
+python database/insert_data.py
+``` 
+3. **Starting the Flask Application:**  
+- The Flask application can be started with Docker using `docker-compose up` or manually:
 
-## DISCLAIMER:
+```bash
+python src/app.py
+```
 
-This project and its contents are the exclusive property of Xtillion, LLC and are intended solely for the evaluation of the individual to whom it was provided. Any distribution, reproduction, or unauthorized use is strictly prohibited. By accessing and using this project, you agree to abide by these conditions. Failure to comply with these terms may result in legal action.
+## Output (what it looks like in the database - sample)
+Using Datagrips (can use PGAdmin4 too) I extracted output tables, and here are a few rows for each dataset table:
 
-Please note that this project is provided "as is", without warranty of any kind, express or implied. Xtillion is not liable for any damages or claims that might arise from using or misusing this project.
+
+### People
+| id | firstName | surname   | email                     | city           | country       | telephone |
+|----|-----------|-----------|---------------------------|----------------|---------------|-----------|
+| 1  | Tim       | Arnold    | tim.arnold@example.com    | Dallas         | United States | 555-4147  |
+| 4  | Jane      | Springer  | jane.springer@example.com | Khartoum       | Sudan         | 555-9575  |
+| 6  | Michael   | McGrath   | michael.mcgrath@example.com | Rio de Janeiro | Brazil       | 555-8448  |
+| 8  | Leah      | Piper     | leah.piper@example.com    | Harbin         | China         | 555-8366  |
+| 9  | Julia     | Murray    | julia.murray@example.com  | Fukuoka        | Japan         | 555-3555  |
+
+### Transaction
+| id | buyer_id | item      | price | store                      | transaction_date |
+|----|----------|-----------|-------|----------------------------|------------------|
+| 1  | 83       | banana    | 2.00  | Frolicking Fox Furnishings | 2021-02-22       |
+| 2  | 65       | apple     | 3.75  | Whimsical Willow Wares     | 2021-03-07       |
+| 3  | 28       | pineapple | 3.50  | Frolicking Fox Furnishings | 2021-03-18       |
+| 4  | 77       | mango     | 3.00  | Whimsical Willow Wares     | 2021-06-06       |
+| 5  | 77       | mango     | 3.00  | Whimsical Willow Wares     | 2021-06-06       |
+
+### Transfer
+| id | sender_id | recipient_id | amount | date       |
+|----|-----------|--------------|--------|------------|
+| 1  | 41        | 30           | 100.00 | 2021-03-14 |
+| 2  | 58        | 66           | 65.00  | 2021-05-27 |
+| 3  | 98        | 12           | 90.00  | 2021-08-12 |
+| 4  | 98        | 12           | 90.00  | 2021-08-12 |
+| 5  | 95        | 61           | 15.00  | 2021-09-08 |
+
+### Promotiion
+| id | client_email             | telephone | promotion | responded | person_id |
+|----|--------------------------|-----------|-----------|-----------|-----------|
+| 1  | stephen.brown@example.com|           | pear      | false     | 86        |
+| 2  | dorothy.peake@example.com| 555-8309  | kiwi      | false     | 62        |
+| 3  |                          | 555-7998  | mango     | false     | 70        |
+| 4  | katherine.butler@example.com | 555-2311 | banana  | true      | 65        |
+| 5  | adam.wilson@example.com  | 555-3416  | orange    | true      | 66        |
+
+## Testing
+
+Run the tests using pytest:
+
+
+
+```bash
+pytest tests/
+```
+* Note only boiler plate tests were made
+
+## Endpoints
+
+The Flask application provides the following endpoints: 
+- `/people`: Retrieves people data. 
+- `/transfers`: Retrieves transfer data. 
+- `/transactions`: Retrieves transaction data. 
+- `/promotions`: Retrieves promotions data. 
+- `/health`: Health check endpoint.
+## Monitoring and Logging
+- The application logs important events and errors, which are crucial for monitoring its health and performance.
+
+## Contributions
+
+Contributions to this project are welcome. Please follow the standard Git workflow - fork, branch, commit, and submit a pull request.
